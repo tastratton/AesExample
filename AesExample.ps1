@@ -1,97 +1,83 @@
 ﻿[CmdletBinding()]
 param(
-[Parameter(Mandatory)]
-[string]$keyText,
-[Parameter(Mandatory)]
-[string]$textToEncrypt
+    [Parameter(Mandatory)]
+    [string]$keyText,
+    [Parameter(Mandatory)]
+    [string]$textToEncrypt
 )
 
 # powershell version of Program.cs for environment without dotnet.exe
 
 Set-StrictMode -Version 3.0
 
-function Encrypt
-{
+function Encrypt {
     [CmdletBinding()]
     [OutputType([Byte[]])]
     Param
     (
-         [Parameter(Mandatory=$true, Position=0)]
-         [System.Byte[]] $unencryptedBytes,
-         [Parameter(Mandatory=$true, Position=1)]
-         [System.Byte[]] $key
+        [Parameter(Mandatory = $true, Position = 0)]
+        [System.Byte[]] $unencryptedBytes,
+        [Parameter(Mandatory = $true, Position = 1)]
+        [System.Byte[]] $key
     )
-    try
-    {
+    try {
         [System.Byte[]] $encryptedBytes = [System.Byte[]]::new(0)
         $encryptAes = [System.Security.Cryptography.Aes]::Create()
         $encryptAes.Key = $key
         $encryptAes.Mode = [System.Security.Cryptography.CipherMode]::ECB
         $encryptAes.Padding = [System.Security.Cryptography.PaddingMode]::PKCS7
-        try
-        {
+        try {
             $aesEncryptor = $encryptAes.CreateEncryptor()
             $encryptedBytes = $aesEncryptor.TransformFinalBlock($unencryptedBytes, 0, $unencryptedBytes.Length);
         }
-        finally
-        {
-            if ($null -ne $aesEncryptor -and $aesEncryptor -is [System.IDisposable])
-            {
+        finally {
+            if ($null -ne $aesEncryptor -and $aesEncryptor -is [System.IDisposable]) {
                 $aesEncryptor.Dispose()
             }
-    }
+        }
 
     }
-    finally
-    {
-        if ($null -ne $encryptAes -and $encryptAes -is [System.IDisposable])
-        {
+    finally {
+        if ($null -ne $encryptAes -and $encryptAes -is [System.IDisposable]) {
             $encryptAes.Dispose()
         }
     }
-    return ,$encryptedBytes
+    return , $encryptedBytes
 }
 
-function Decrypt
-{
+function Decrypt {
     [CmdletBinding()]
     [OutputType([Byte[]])]
     Param
     (
-         [Parameter(Mandatory=$true, Position=0)]
-         [System.Byte[]] $encryptedBytes,
-         [Parameter(Mandatory=$true, Position=1)]
-         [System.Byte[]] $key
+        [Parameter(Mandatory = $true, Position = 0)]
+        [System.Byte[]] $encryptedBytes,
+        [Parameter(Mandatory = $true, Position = 1)]
+        [System.Byte[]] $key
     )
-    try
-    {
+    try {
         [System.Byte[]] $decryptedBytes = [System.Byte[]]::new(0)
         $decryptAes = [System.Security.Cryptography.Aes]::Create()
         $decryptAes.Key = $key
         $decryptAes.Mode = [System.Security.Cryptography.CipherMode]::ECB
         $decryptAes.Padding = [System.Security.Cryptography.PaddingMode]::PKCS7
-        try
-        {
+        try {
             $aesDecryptor = $decryptAes.CreateDecryptor()
             $decryptedBytes = $aesDecryptor.TransformFinalBlock($encryptedBytes, 0, $encryptedBytes.Length);
         }
-        finally
-        {
-            if ($null -ne $aesDecryptor -and $aesDecryptor -is [System.IDisposable])
-            {
+        finally {
+            if ($null -ne $aesDecryptor -and $aesDecryptor -is [System.IDisposable]) {
                 $aesDecryptor.Dispose()
             }
-    }
+        }
 
     }
-    finally
-    {
-        if ($null -ne $decryptAes -and $decryptAes -is [System.IDisposable])
-        {
+    finally {
+        if ($null -ne $decryptAes -and $decryptAes -is [System.IDisposable]) {
             $decryptAes.Dispose()
         }
     }
-    return ,$decryptedBytes
+    return , $decryptedBytes
 
 
 }
